@@ -2,23 +2,20 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                // Use your actual GitHub repo
-                git 'https://github.com/Dhirendra782/spring-kafka.git'
-            }
-        }
         stage('Build') {
             steps {
-                // Build your Spring Boot app with Maven
+                echo 'Building Spring Boot app...'
                 sh 'mvn clean package'
             }
         }
         stage('Deploy') {
             steps {
-                // Stop previous app (if running) and start the new one
+                echo 'Deploying Spring Boot app...'
                 sh '''
+                # Stop any previously running Spring Boot app
                 pkill -f 'java -jar' || true
+
+                # Start the new JAR in the background and log output
                 nohup java -jar target/*.jar > app.log 2>&1 &
                 '''
             }
