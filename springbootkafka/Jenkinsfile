@@ -4,19 +4,22 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-repo/spring-boot-app.git'
+                // Use your actual GitHub repo
+                git 'https://github.com/Dhirendra782/spring-kafka.git'
             }
         }
         stage('Build') {
             steps {
+                // Build your Spring Boot app with Maven
                 sh 'mvn clean package'
             }
         }
         stage('Deploy') {
             steps {
+                // Stop previous app (if running) and start the new one
                 sh '''
-                pkill -f 'java -jar myapp.jar' || true
-                nohup java -jar target/myapp.jar > app.log 2>&1 &
+                pkill -f 'java -jar' || true
+                nohup java -jar target/*.jar > app.log 2>&1 &
                 '''
             }
         }
