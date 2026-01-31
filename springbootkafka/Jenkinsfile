@@ -1,27 +1,39 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'JDK17'
+        maven 'Maven'
+    }
+
     stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build JAR') {
             steps {
-                echo 'Building Spring Boot JAR...'
                 sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo 'Building Docker image...'
                 sh 'docker build -t springboot-kafka:latest .'
             }
         }
 
         stage('Deploy Docker Container') {
             steps {
-                echo 'Deploying application...'
                 sh '''
                 docker rm -f springboot-kafka || true
-                docker run -d -p 8081:8081 --name springboot-kafka springboot-kafka:latest
+                docker run -d \
+                  -p 8081:8081 \
+                  --name springboot-kafka \
+                  springboot-kafka:latest
                 '''
             }
         }
