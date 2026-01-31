@@ -1,0 +1,24 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/your-repo/spring-boot-app.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh '''
+                pkill -f 'java -jar myapp.jar' || true
+                nohup java -jar target/myapp.jar > app.log 2>&1 &
+                '''
+            }
+        }
+    }
+}
