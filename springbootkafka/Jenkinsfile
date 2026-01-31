@@ -2,21 +2,26 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Build JAR') {
             steps {
-                echo 'Building Spring Boot app...'
-                sh 'mvn clean package'
+                echo 'Building Spring Boot JAR...'
+                sh 'mvn clean package -DskipTests'
             }
         }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying Spring Boot app...'
-                sh '''
-                # Stop any previously running Spring Boot app
-                pkill -f 'java -jar' || true
 
-                # Start the new JAR in the background and log output
-                nohup java -jar target/*.jar > app.log 2>&1 &
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image...'
+                sh 'docker build -t springboot-kafka:latest .'
+            }
+        }
+
+        stage('Deploy Docker Container') {
+            steps {
+                echo 'Deploying application...'
+                sh '''
+                docker rm -f springboot-kafka || true
+                docker run -d -p 8081:8081 --name springboot-kafka springboot-kafka:latest
                 '''
             }
         }
